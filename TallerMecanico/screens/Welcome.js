@@ -1,18 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { useGlobalContext } from './GlobalContext';
+import translateText from './translate';
 
 export default function WelcomeScreen({ navigation }) {
+  const [translatedContent, setTranslatedContent] = useState({
+    bienvenido: '¡Bienvenido!',
+    iniciar: 'Iniciar',
+  });
+  const { translate, dark } = useGlobalContext();
+
+  useEffect(() => {
+    const translateContent = async () => {
+      if (translate) {
+        const bienvenido = await translateText('¡Bienvenido!', 'es', 'en');
+        const iniciar = await translateText('Iniciar', 'es', 'en');
+        setTranslatedContent({ bienvenido, iniciar });
+      } else {
+        setTranslatedContent({
+          bienvenido: '¡Bienvenido!',
+          iniciar: 'Iniciar',
+        });
+      }
+    };
+
+    translateContent();
+  }, [translate]);
 
   return (
-    <View style={[styles.center, { backgroundColor: '#fff' }]}>
-      <Text style={[styles.title, { color: '#000' }]}>{'¡Bienvenido!'}</Text>
+    <View style={[styles.center, { backgroundColor: dark ? '#333' : '#fff' }]}>
+      <Text style={[styles.title, { color: dark ? '#fff' : '#000' }]}>{translatedContent.bienvenido}</Text>
 
       <TouchableOpacity 
-        style={[styles.boton, { backgroundColor: '#E5D9F2' }]} 
+        style={[styles.boton, { backgroundColor: dark ? '#555' : '#E5D9F2' }]} 
         onPress={() => navigation.navigate('Login')}
       >
-        <Text style={[styles.textoBoton, { color: '#000' }]}>{'Iniciar'}</Text>
+        <Text style={[styles.textoBoton, { color: dark ? '#fff' : '#000' }]}>{translatedContent.iniciar}</Text>
       </TouchableOpacity>
     </View>
   );
