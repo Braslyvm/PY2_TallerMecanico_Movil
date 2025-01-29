@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } fr
 
 import translateText from './translate';
 import { useGlobalContext } from './GlobalContext';
+import axios from "axios";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -54,8 +55,35 @@ export default function LoginScreen({ navigation }) {
   }, [translate]);
 
   const handleLogin = () => {
-    navigation.replace('MainApp');
+    if (email && password) {
+      const usuario = email;
+      const passwordString = String(password);
+      console.log('Usuario:', usuario);
+      console.log('Contraseña:', passwordString);
+      axios.get(`http://10.0.2.2:3001/api/login/${usuario}`)
+        .then((response) => {
+          console.log('Respuesta:', response);
+          const data = response.data;
+          if (!data || data.length === 0) {
+            Alert.alert("Usuario no encontrado.");
+            return;
+          }
+          const storedPassword = data.contraseña;
+          if (storedPassword !== passwordString) {
+            Alert.alert("Contraseña incorrecta.");
+            return;
+          }
+          navigation.replace('MainApp');
+        })
+        .catch((error) => {
+          console.error('Error de Axios:', error);
+          Alert.alert("Error al iniciar sesión. Verifica tus credenciales.");
+        });
 
+
+    } else {
+      Alert.alert('Campos vacíos', 'Por favor ingresa tu correo y contraseña.');
+    }
   };
 
   const register = () => {
