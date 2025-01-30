@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useGlobalContext } from './GlobalContext';
 import translateText from './translate';
 
@@ -18,7 +18,7 @@ export default function WelcomeScreen({ navigation }) {
         setTranslatedContent({ bienvenido, iniciar });
       } else {
         setTranslatedContent({
-          bienvenido: '¡Bienvenido!',
+          bienvenido: '¡Bienvenido al taller!',
           iniciar: 'Iniciar',
         });
       }
@@ -29,8 +29,13 @@ export default function WelcomeScreen({ navigation }) {
 
   return (
     <View style={[styles.center, { backgroundColor: dark ? '#333' : '#fff' }]}>
+      
       <Text style={[styles.title, { color: dark ? '#fff' : '#000' }]}>{translatedContent.bienvenido}</Text>
-
+      <Image
+        source={require('../imagenes/taller.jpg')}
+        style={styles.imagen}
+  
+      />
       <TouchableOpacity 
         style={[styles.boton, { backgroundColor: dark ? '#555' : '#E5D9F2' }]} 
         onPress={() => navigation.navigate('Login')}
@@ -63,5 +68,11 @@ const styles = StyleSheet.create({
   textoBoton: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  imagen: {
+    width: '90%', // Ocupa el 90% del ancho del contenedor
+    height: 200,  // Ajusta la altura según sea necesario
+    marginBottom: 20,
+    borderRadius: 10,
   },
 });

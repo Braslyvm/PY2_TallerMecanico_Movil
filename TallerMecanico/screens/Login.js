@@ -56,11 +56,10 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = () => {
     if (email && password) {
-      const usuario = email;
+      const correo = email;
       const passwordString = String(password);
-      console.log('Usuario:', usuario);
-      console.log('Contraseña:', passwordString);
-      axios.get(`http://10.0.2.2:3001/api/login/${usuario}`)
+      axios
+        .get(`http://10.0.2.2:3001/api/login/Cliente/${correo}`)
         .then((response) => {
           console.log('Respuesta:', response);
           const data = response.data;
@@ -79,8 +78,6 @@ export default function LoginScreen({ navigation }) {
           console.error('Error de Axios:', error);
           Alert.alert("Error al iniciar sesión. Verifica tus credenciales.");
         });
-
-
     } else {
       Alert.alert('Campos vacíos', 'Por favor ingresa tu correo y contraseña.');
     }
