@@ -7,6 +7,7 @@ import translateText from './translate'; // Asegúrate de que la ruta sea correc
 import HomeScreen from './Home';
 import AjustesScreen from './Ajustes';
 import WelcomeScreen from './Welcome';
+import Vehiculos from './Vehiculos';
 
 const Drawer = createDrawerNavigator();
 
@@ -18,6 +19,7 @@ export default function MainApp() {
     tipoCambio: 'Tipo de Cambio',
     ajustes: 'Ajustes',
     cerrarSesion: 'Cerrar Sesión',
+    MisVehiculos: 'Mis Vehiculos',
   });
 
   useEffect(() => {
@@ -28,7 +30,8 @@ export default function MainApp() {
         const tipoCambio = await translateText('Tipo de Cambio', 'es', 'en');
         const ajustes = await translateText('Ajustes', 'es', 'en');
         const cerrarSesion = await translateText('Cerrar Sesión', 'es', 'en');
-        setTranslatedContent({ home, convertir, tipoCambio, ajustes, cerrarSesion });
+        const MisVehiculos = await translateText('Mis Vehiculosn', 'es', 'en');
+        setTranslatedContent({ home, convertir, tipoCambio, ajustes, cerrarSesion , MisVehiculos});
       } else {
         setTranslatedContent({
           home: 'Inicio',
@@ -36,6 +39,7 @@ export default function MainApp() {
           tipoCambio: 'Tipo de Cambio',
           ajustes: 'Ajustes',
           cerrarSesion: 'Cerrar Sesión',
+          MisVehiculos: 'Mis Vehiculos',
         });
       }
     };
@@ -64,6 +68,16 @@ export default function MainApp() {
         component={HomeScreen}
         options={{
           drawerLabel: translatedContent.home,
+          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
+          headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
+          headerTitleStyle: { fontWeight: 'bold' },
+        }}
+      />
+      <Drawer.Screen
+        name="Mis Vehiculos"
+        component={Vehiculos}
+        options={{
+          drawerLabel: translatedContent.MisVehiculos,
           headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
           headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
           headerTitleStyle: { fontWeight: 'bold' },

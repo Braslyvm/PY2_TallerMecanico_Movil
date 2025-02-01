@@ -5,9 +5,10 @@ const GlobalContext = createContext();
 export const GlobalProvider = ({ children }) => {
   const [dark, setDark] = useState(false);
   const [translate, setTranslate] = useState(false);
+  const [cliente, setCliente] = useState("");
 
   return (
-    <GlobalContext.Provider value={{ dark, setDark, translate, setTranslate }}>
+    <GlobalContext.Provider value={{ dark, setDark, translate, setTranslate, cliente, setCliente  }}>
       {children}
     </GlobalContext.Provider>
   );

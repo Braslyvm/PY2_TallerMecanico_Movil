@@ -17,7 +17,7 @@ export default function LoginScreen({ navigation }) {
     errorCorreoContrasena: 'El correo o la contraseña es incorrecta',
     errorIngresar: 'Por favor ingresa tu correo y contraseña'
   });
-  const { dark, translate } = useGlobalContext();
+  const { translate, dark ,cliente, setCliente} = useGlobalContext();
 
   useEffect(() => {
     const translateContent = async () => {
@@ -61,7 +61,6 @@ export default function LoginScreen({ navigation }) {
       axios
         .get(`http://10.0.2.2:3001/api/login/Cliente/${correo}`)
         .then((response) => {
-          console.log('Respuesta:', response);
           const data = response.data;
           if (!data || data.length === 0) {
             Alert.alert("Usuario no encontrado.");
@@ -72,6 +71,8 @@ export default function LoginScreen({ navigation }) {
             Alert.alert("Contraseña incorrecta.");
             return;
           }
+          setCliente(data.cedula);
+          console.log(data.cedula)
           navigation.replace('MainApp');
         })
         .catch((error) => {

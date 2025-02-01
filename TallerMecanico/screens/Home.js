@@ -7,7 +7,7 @@ const HomeScreen = () => {
   const [translatedContent, setTranslatedContent] = useState({
     bienvenido: 'Bienvenido a la página principal',
   });
-  const { translate, dark } = useGlobalContext();
+  const { translate, dark ,cliente, setCliente} = useGlobalContext();
 
   useEffect(() => {
     const translateContent = async () => {
