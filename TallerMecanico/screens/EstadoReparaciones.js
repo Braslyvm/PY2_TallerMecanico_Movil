@@ -33,8 +33,8 @@ const EstadoReparacionesScreen = () => {
   };
 
   const obtenerEstado=(estado)=>{
-    const estados = ["Pendiente", "En espera", "En curso", "Facturar", "Finalizado"];
-    const estadosTraducidos = ["Pending", "Waiting", "In Progress", "To be Billed", "Completed"];
+    const estados = ["Pendiente", "En espera","Denegado", "En curso", "Facturar", "Finalizado"];
+    const estadosTraducidos = ["Pending", "Waiting", "Rejected","In Progress", "To be Billed", "Completed"];
     const indiceEstado=estados.indexOf(estado);
     if (translate){
       return estadosTraducidos[indiceEstado];
