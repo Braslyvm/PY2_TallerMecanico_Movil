@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useGlobalContext } from './GlobalContext'; // Asegúrate de que la ruta sea correcta
 import translateText from './translate'; // Asegúrate de que la ruta sea correcta
-
+import FACTURAS from "./facturar";
 // Importa las pantallas
 import HomeScreen from './Home';
 import AjustesScreen from './Ajustes';
@@ -17,6 +17,7 @@ export default function MainApp() {
   const [translatedContent, setTranslatedContent] = useState({
     home: 'Inicio',
     convertir: 'Convertir',
+    Facturas: "Facturas", 
     tipoCambio: 'Tipo de Cambio',
     ajustes: 'Ajustes',
     cerrarSesion: 'Cerrar Sesión',
@@ -31,6 +32,7 @@ export default function MainApp() {
         const cerrarSesion = await translateText('Cerrar Sesión', 'es', 'en');
         const MisVehiculos = await translateText('Mis Vehiculosn', 'es', 'en');
         const MisReparaciones = await translateText('Mis Reparaciones', 'es', 'en');
+        const Facturas = await translateText("Facturas", "es", "en");
         setTranslatedContent({ home, convertir, tipoCambio, ajustes, cerrarSesion , MisVehiculos});
       } else {
         setTranslatedContent({
@@ -91,6 +93,16 @@ export default function MainApp() {
           headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
           headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
           headerTitleStyle: { fontWeight: 'bold' },
+        }}
+      />
+       <Drawer.Screen
+        name="Facturas pendientes"
+        component={FACTURAS}
+        options={{
+          drawerLabel: translatedContent.Facturas, 
+          headerStyle: { backgroundColor: dark ? "#121212" : "#E5D9F2" },
+          headerTintColor: dark ? "#E5E5E5" : "#000",
+          headerTitleStyle: { fontWeight: "bold" },
         }}
       />
       <Drawer.Screen
