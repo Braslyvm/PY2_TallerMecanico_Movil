@@ -4,6 +4,7 @@ import { useGlobalContext } from './GlobalContext';
 import axios from "axios";
 import { Card } from 'react-native-paper';
 import RegistroVehiculoModal from "./RegistroVehiculo";
+import translateText from './translate';
 
 const Vehiculos = () => {
     const { translate, dark, cliente, setCliente } = useGlobalContext();
@@ -17,6 +18,107 @@ const Vehiculos = () => {
     const [Placa, setplaca] = useState("");
     const [selectedDetalles, setselectedDetalles] = useState(null);
     const [repuestos, setrepuestos] = useState([]);
+
+    // Estado para los textos traducidos
+    const [translatedContent, setTranslatedContent] = useState({
+        misVehiculos: 'Mis Vehículos',
+        agregarVehiculo: 'Agregar Vehículo',
+        noVehiculos: 'No hay vehículos registrados.',
+        reparacionesDe: 'Reparaciones de',
+        volver: 'Volver',
+        detallesReparacion: 'Detalles de Reparación',
+        repuestosUtilizados: 'Repuestos Utilizados',
+        noReparaciones: 'No hay reparaciones registradas.',
+        noRepuestos: 'No hay repuestos registrados.',
+        cerrar: 'Cerrar',
+        Placa: 'placa',
+        Marca: 'Marca',
+        Modelo: 'Modelo',
+        Año: 'Año',
+        IDReparación: 'ID Reparación',
+        Mecánico: 'Mecánico',
+        FechadeReparación: 'Fecha de Reparación',
+        Detalles: 'Detalles',
+        Repuesto: 'Repuesto',
+        Cantidad: 'Cantidad'
+
+        
+    });
+    useEffect(() => {
+        const translateContent = async () => {
+            if (translate) {
+                const misVehiculos = await translateText('Mis Vehículos', 'es', 'en');
+                const agregarVehiculo = await translateText('Agregar Vehículo', 'es', 'en');
+                const noVehiculos = await translateText('No hay vehículos registrados.', 'es', 'en');
+                const reparacionesDe = await translateText('Reparaciones de', 'es', 'en');
+                const volver = await translateText('Volver', 'es', 'en');
+                const detallesReparacion = await translateText('Detalles de Reparación', 'es', 'en');
+                const repuestosUtilizados = await translateText('Repuestos Utilizados', 'es', 'en');
+                const noReparaciones = await translateText('No hay reparaciones registradas.', 'es', 'en');
+                const noRepuestos = await translateText('No hay repuestos registrados.', 'es', 'en');
+                const cerrar = await translateText('Cerrar', 'es', 'en');
+                const Placa = await translateText('placa', 'es', 'en');
+                const Marca = await translateText('Marca', 'es', 'en');
+                const Modelo = await translateText('Modelo', 'es', 'en');
+                const Año = await translateText('Año', 'es', 'en');
+                const IDReparación = await translateText('ID Reparación', 'es', 'en');
+                const Mecánico = await translateText('Mecánico', 'es', 'en');
+                const FechadeReparación = await translateText('Fecha de Reparación', 'es', 'en');
+                const Detalles = await translateText('Detalles', 'es', 'en');
+                const Repuesto = await translateText('Repuesto', 'es', 'en');
+                const Cantidad = await translateText('Cantidad', 'es', 'en');
+               
+      
+                setTranslatedContent({
+                    misVehiculos,
+                    agregarVehiculo,
+                    noVehiculos,
+                    reparacionesDe,
+                    volver,
+                    detallesReparacion,
+                    repuestosUtilizados,
+                    noReparaciones,
+                    noRepuestos,
+                    cerrar,
+                    Placa,
+                    Marca,
+                    Modelo,
+                    Año,
+                    IDReparación,
+                    Mecánico,
+                    FechadeReparación,
+                    Detalles,
+                    Repuesto,
+                    Cantidad
+                });
+            } else {
+                setTranslatedContent({
+                    misVehiculos: 'Mis Vehículos',
+                    agregarVehiculo: 'Agregar Vehículo',
+                    noVehiculos: 'No hay vehículos registrados.',
+                    reparacionesDe: 'Reparaciones de',
+                    volver: 'Volver',
+                    detallesReparacion: 'Detalles de Reparación',
+                    repuestosUtilizados: 'Repuestos Utilizados',
+                    noReparaciones: 'No hay reparaciones registradas.',
+                    noRepuestos: 'No hay repuestos registrados.',
+                    cerrar: 'Cerrar',
+                    Placa: 'placa',
+                    Marca: 'Marca',
+                    Modelo: 'Modelo',
+                    Año: 'Año',
+                    IDReparación: 'ID Reparación',
+                    Mecánico: 'Mecánico',
+                    FechadeReparación: 'Fecha de Reparación',
+                    Detalles: 'Detalles',
+                    Repuesto: 'Repuesto',
+                    Cantidad: 'Cantidad'
+                });
+            }
+        };
+
+        translateContent();
+    }, [translate]);
 
     // Obtener repuestos
     const getRepuestos = (id) => {
@@ -105,69 +207,69 @@ const Vehiculos = () => {
     };
 
     return (
-      <View style={[styles.container, { backgroundColor: dark ? '#333' : '#fff' }]}>
-          {autos && (
-              <>
-                  <View style={styles.header}>
-                      <Text style={styles.title}>Mis Vehículos</Text>
-                      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-                          <Text style={styles.addButtonText}>Agregar Vehículo</Text>
-                      </TouchableOpacity>
-                  </View>
-  
-                  <ScrollView style={styles.listContainer}>
-                      <View>
-                          {vehiculos.length > 0 ? (
-                              vehiculos.map((vehiculo) => (
-                                  <TouchableOpacity key={vehiculo.id_vehiculo} onPress={() => Intermedio(vehiculo.id_vehiculo, vehiculo.placa)}>
-                                      <Card style={styles.card}>
-                                          <Card.Content>
-                                              <Text style={styles.vehiculoText}>Placa: {vehiculo.placa}</Text>
-                                              <Text style={styles.vehiculoText}>Marca: {vehiculo.marca}</Text>
-                                              <Text style={styles.vehiculoText}>Modelo: {vehiculo.modelo}</Text>
-                                              <Text style={styles.vehiculoText}>Año: {vehiculo.anio}</Text>
-                                          </Card.Content>
-                                      </Card>
-                                  </TouchableOpacity>
-                              ))
-                          ) : (
-                              <Text style={styles.noVehiculosText}>No hay vehículos registrados.</Text>
-                          )}
-                      </View>
-                  </ScrollView>
-              </>
-          )}
-          {reparaciones && (
-            <View style={styles.reparacionesContainer}>
-                <View style={styles.header}>
-                    <Text style={styles.reparacionesTitle}>Reparaciones de {Placa}</Text>
-                    <TouchableOpacity style={styles.backButton} onPress={OpenAutos}>
-                        <Text style={styles.backButtonText}>Volver</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {Reparacion.length > 0 ? (
-                    Reparacion.map((reparacion) => (
-                        <TouchableOpacity 
-                            key={reparacion.id_reparacion} 
-                            onPress={() => {
-                                OpenDetalles(reparacion.descripcion, reparacion.mecanico, reparacion.fecha_reparacion, reparacion.id_reparacion);
-                            }}
-                        >
-                            <Card style={styles.card}>
-                                <Card.Content>
-                                    <Text style={styles.reparacionText}>ID Reparación: {reparacion.id_reparacion}</Text>
-                                    <Text style={styles.reparacionText}>Mecánico: {reparacion.mecanico}</Text>
-                                    <Text style={styles.reparacionText}>Fecha de Reparación: {reparacion.fecha_reparacion}</Text>
-                                </Card.Content>
-                            </Card>
+        <View style={[styles.container, { backgroundColor: dark ? '#333' : '#fff' }]}>
+            {autos && (
+                <>
+                    <View style={styles.header}>
+                        <Text style={styles.title}>{translatedContent.misVehiculos}</Text>
+                        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+                            <Text style={styles.addButtonText}>{translatedContent.agregarVehiculo}</Text>
                         </TouchableOpacity>
-                    ))
-                ) : (
-                    <Text style={styles.noReparacionesText}>No hay reparaciones registradas.</Text>
-                )}
-            </View>
-          )}
+                    </View>
+
+                    <ScrollView style={styles.listContainer}>
+                        <View>
+                            {vehiculos.length > 0 ? (
+                                vehiculos.map((vehiculo) => (
+                                    <TouchableOpacity key={vehiculo.id_vehiculo} onPress={() => Intermedio(vehiculo.id_vehiculo, vehiculo.placa)}>
+                                        <Card style={styles.card}>
+                                            <Card.Content>
+                                                <Text style={styles.vehiculoText}>{translatedContent.Placa}: {vehiculo.placa}</Text>
+                                                <Text style={styles.vehiculoText}>{translatedContent.Marca}: {vehiculo.marca}</Text>
+                                                <Text style={styles.vehiculoText}>{translatedContent.Modelo}: {vehiculo.modelo}</Text>
+                                                <Text style={styles.vehiculoText}>{translatedContent.Año}: {vehiculo.anio}</Text>
+                                            </Card.Content>
+                                        </Card>
+                                    </TouchableOpacity>
+                                ))
+                            ) : (
+                                <Text style={styles.noVehiculosText}>{translatedContent.noVehiculos}</Text>
+                            )}
+                        </View>
+                    </ScrollView>
+                </>
+            )}
+            {reparaciones && (
+                <View style={styles.reparacionesContainer}>
+                    <View style={styles.header}>
+                        <Text style={styles.reparacionesTitle}>{translatedContent.reparacionesDe} {Placa}</Text>
+                        <TouchableOpacity style={styles.backButton} onPress={OpenAutos}>
+                            <Text style={styles.backButtonText}>{translatedContent.volver}</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {Reparacion.length > 0 ? (
+                        Reparacion.map((reparacion) => (
+                            <TouchableOpacity 
+                                key={reparacion.id_reparacion} 
+                                onPress={() => {
+                                    OpenDetalles(reparacion.descripcion, reparacion.mecanico, reparacion.fecha_reparacion, reparacion.id_reparacion);
+                                }}
+                            >
+                                <Card style={styles.card}>
+                                    <Card.Content>
+                                        <Text style={styles.reparacionText}>{translatedContent.IDReparación}: {reparacion.id_reparacion}</Text>
+                                        <Text style={styles.reparacionText}>{translatedContent.Mecánico}: {reparacion.mecanico}</Text>
+                                        <Text style={styles.reparacionText}>{translatedContent.FechadeReparación}: {reparacion.fecha_reparacion}</Text>
+                                    </Card.Content>
+                                </Card>
+                            </TouchableOpacity>
+                        ))
+                    ) : (
+                        <Text style={styles.noReparacionesText}>{translatedContent.noReparaciones}</Text>
+                    )}
+                </View>
+            )}
             {detalles && (
                 <Modal
                     animationType="slide"
@@ -176,64 +278,64 @@ const Vehiculos = () => {
                     onRequestClose={CloseDetalles}
                 >
                     <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Detalles de Reparación</Text>
-                        
-                        <View style={styles.detailSection}>
-                        <Text style={styles.detailLabel}>Detalles:</Text>
-                        <Text style={styles.detailText}>{selectedDetalles?.detalles}</Text>
-                        </View>
-
-                        <View style={styles.detailSection}>
-                        <Text style={styles.detailLabel}>Mecánico:</Text>
-                        <Text style={styles.detailText}>{selectedDetalles?.mecanico}</Text>
-                        </View>
-
-                        <View style={styles.detailSection}>
-                        <Text style={styles.detailLabel}>Fecha de Reparación:</Text>
-                        <Text style={styles.detailText}>{selectedDetalles?.fecha_reparacion}</Text>
-                        </View>
-
-                        <View style={styles.detailSection}>
-                        <Text style={styles.detailLabel}>Placa:</Text>
-                        <Text style={styles.detailText}>{selectedDetalles?.Placa}</Text>
-                        </View>
-
-                        <Text style={styles.modalSubTitle}>Repuestos Utilizados</Text>
-                        
-                        <ScrollView style={styles.repuestosContainer}>
-                        {repuestos.length > 0 ? (
-                            repuestos.map((repuesto) => (
-                            <View key={repuesto.id_reparacion} style={styles.repuestoItem}>
-                                <Text style={styles.repuestoText}>
-                                <Text style={styles.repuestoLabel}>Repuesto:</Text> {repuesto.descripcion}
-                                </Text>
-                                <Text style={styles.repuestoText}>
-                                <Text style={styles.repuestoLabel}>Cantidad:</Text> {repuesto.cantidad_utilizada}
-                                </Text>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>{translatedContent.detallesReparacion}</Text>
+                            
+                            <View style={styles.detailSection}>
+                                <Text style={styles.detailLabel}>{translatedContent.Detalles}:</Text>
+                                <Text style={styles.detailText}>{selectedDetalles?.detalles}</Text>
                             </View>
-                            ))
-                        ) : (
-                            <Text style={styles.noRepuestosText}>No hay repuestos registrados.</Text>
-                        )}
-                        </ScrollView>
 
-                        <TouchableOpacity onPress={CloseDetalles} style={styles.closeButton}>
-                        <Text style={styles.closeButtonText}>Cerrar</Text>
-                        </TouchableOpacity>
-                    </View>
+                            <View style={styles.detailSection}>
+                                <Text style={styles.detailLabel}>{translatedContent.Mecánico}:</Text>
+                                <Text style={styles.detailText}>{selectedDetalles?.mecanico}</Text>
+                            </View>
+
+                            <View style={styles.detailSection}>
+                                <Text style={styles.detailLabel}>{translatedContent.FechadeReparación}:</Text>
+                                <Text style={styles.detailText}>{selectedDetalles?.fecha_reparacion}</Text>
+                            </View>
+
+                            <View style={styles.detailSection}>
+                                <Text style={styles.detailLabel}>{translatedContent.Placa}:</Text>
+                                <Text style={styles.detailText}>{selectedDetalles?.Placa}</Text>
+                            </View>
+
+                            <Text style={styles.modalSubTitle}>{translatedContent.repuestosUtilizados}</Text>
+                            
+                            <ScrollView style={styles.repuestosContainer}>
+                                {repuestos.length > 0 ? (
+                                    repuestos.map((repuesto) => (
+                                        <View key={repuesto.id_reparacion} style={styles.repuestoItem}>
+                                            <Text style={styles.repuestoText}>
+                                                <Text style={styles.repuestoLabel}>{translatedContent.Repuesto}:</Text> {repuesto.descripcion}
+                                            </Text>
+                                            <Text style={styles.repuestoText}>
+                                                <Text style={styles.repuestoLabel}>{translatedContent.Cantidad}:</Text> {repuesto.cantidad_utilizada}
+                                            </Text>
+                                        </View>
+                                    ))
+                                ) : (
+                                    <Text style={styles.noRepuestosText}>{translatedContent.noRepuestos}</Text>
+                                )}
+                            </ScrollView>
+
+                            <TouchableOpacity onPress={CloseDetalles} style={styles.closeButton}>
+                                <Text style={styles.closeButtonText}>{translatedContent.cerrar}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </Modal>
-                )}
-             <RegistroVehiculoModal
+            )}
+            <RegistroVehiculoModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 cedula={cliente} 
                 dark={dark} 
                 translate={translate} 
-                  />
-      </View>
-  );
+            />
+        </View>
+    );
 };
 
 export default Vehiculos;
