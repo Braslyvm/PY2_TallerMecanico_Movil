@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, Modal } fr
 import { useGlobalContext } from './GlobalContext';
 import axios from "axios";
 import { Card } from 'react-native-paper';
+import RegistroVehiculoModal from "./RegistroVehiculo";
 
 const Vehiculos = () => {
     const { translate, dark, cliente, setCliente } = useGlobalContext();
     const [autos, setautos] = useState(true);
     const [reparaciones, setreparaciones] = useState(false);
     const [detalles, setdetalles] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false); 
     const [vehiculos, setvehiculos] = useState([]);
     const [Reparacion, setReparacion] = useState([]);
     const [ID, setID] = useState("");
@@ -46,7 +48,9 @@ const Vehiculos = () => {
     };
 
     useEffect(() => {
+
     }, [Reparacion]);
+    
 
     // Obtener reparaciones
     const getReparaciones = (id) => {
@@ -65,7 +69,7 @@ const Vehiculos = () => {
 
     useEffect(() => {
         getVehiculos();
-    }, []);
+    }, [vehiculos]);
 
     // Lógica de mostrar y ocultar
     const OpenAutos = () => {
@@ -107,7 +111,7 @@ const Vehiculos = () => {
               <>
                   <View style={styles.header}>
                       <Text style={styles.title}>Mis Vehículos</Text>
-                      <TouchableOpacity style={styles.addButton} onPress={() => { /* Lógica para agregar vehículo */ }}>
+                      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                           <Text style={styles.addButtonText}>Agregar Vehículo</Text>
                       </TouchableOpacity>
                   </View>
@@ -196,6 +200,13 @@ const Vehiculos = () => {
                 </View>
               </Modal>
             )}
+             <RegistroVehiculoModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                cedula={cliente} 
+                dark={dark} 
+                translate={translate} 
+                  />
       </View>
   );
 };
@@ -257,7 +268,7 @@ const styles = StyleSheet.create({
   reparacionesTitle: {
       fontSize: 20,
       fontWeight: 'bold',
-      marginLeft: 16, // Margen para separar el título del botón "Volver"
+      marginLeft: 16, 
   },
   reparacionText: {
       fontSize: 16,
@@ -310,7 +321,7 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
   },
   backButton: {
-      backgroundColor: '#6c757d', // Color gris para el botón "Volver"
+      backgroundColor: '#6c757d', 
       paddingVertical: 8,
       paddingHorizontal: 16,
       borderRadius: 8,
