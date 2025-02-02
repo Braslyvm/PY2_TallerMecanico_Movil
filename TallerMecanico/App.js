@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { GlobalProvider } from './screens/GlobalContext'; // Asegúrate de que la ruta sea correcta
-
+import FACTURAS from './screens/facturar'
 // Importa las pantallas y MainApp
 import WelcomeScreen from './screens/Welcome';
 import LoginScreen from './screens/Login';
@@ -22,6 +22,7 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="MainApp" component={MainApp} />
           <Stack.Screen name="Ajustes" component={AjustesScreen} />
+          <Stack.Screen name="Facturas" component={FACTURAS} />
         </Stack.Navigator>
       </NavigationContainer>
     </GlobalProvider>
