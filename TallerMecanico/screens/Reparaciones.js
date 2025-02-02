@@ -70,7 +70,7 @@ const ReparacionesScreen = () => {
     <Card style={[styles.card, { backgroundColor: dark ? "#444" : "#fff" }]}>
       <Card.Content>
         <Text style={[styles.title, { color: dark ? "#fff" : "#000" }]}>ID: {item.id_reparacion}</Text>
-        <Text style={{ color: dark ? "#fff" : "#000" }}>{translate ? "Vehicle:" : "Vehículo:"} {item.id_vehiculo}</Text>
+        <Text style={{ color: dark ? "#fff" : "#000" }}>{translate ? "Vehicle:" : "Vehículo:"} {item.placa}</Text>
         <Text style={{ color: dark ? "#fff" : "#000" }}>{translate ? "Description:" : "Descripción:"} {item.descripcion}</Text>
         <Text style={{ color: dark ? "#fff" : "#000" }}>{translate ? "Technical Diagnosis:" : "Diagnóstico Técnico:"} {item.diagnostico_tecnico}</Text>
         <Text style={{ color: dark ? "#fff" : "#000" }}>{translate ? "Date:" : "Fecha:"} {item.fecha_reparacion}</Text>
