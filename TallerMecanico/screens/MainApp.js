@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
+import {View} from 'react-native'
 import { useGlobalContext } from './GlobalContext'; // Asegúrate de que la ruta sea correcta
 import translateText from './translate'; // Asegúrate de que la ruta sea correcta
 import FACTURAS from "./facturar";
@@ -13,12 +14,48 @@ import EstadoReparacionesScreen from './EstadoReparaciones';
 
 const Drawer = createDrawerNavigator();
 
+// Componente personalizado para el contenido del Drawer
+const CustomDrawerContent = (props) => {
+  const { translate, dark } = useGlobalContext();
+
+  return (
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={{
+        flex: 1, 
+        backgroundColor: dark ? '#121212' : '#E5D9F2', // Fondo del Drawer
+      }}
+    >
+      {/* Lista de elementos del Drawer */}
+      <DrawerItemList {...props} />
+
+      {/* Botón de Cerrar Sesión */}
+      <View style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 20 }}>
+        <DrawerItem
+          label={translate ? "Log Out" : "Cerrar Sesión"}
+          onPress={() => props.navigation.navigate("Welcome")}
+          labelStyle={{
+            color: dark ? '#DDE6ED' : '#27374D',
+            fontSize: 20,
+            fontWeight: 'bold',
+          }}
+          style={{
+            backgroundColor: dark ? '#27374D' : '#9DB2BF',
+            margin: 5,
+            borderRadius: 8,
+          }}
+        />
+      </View>
+    </DrawerContentScrollView>
+  );
+};
+
 export default function MainApp() {
   const { translate, dark } = useGlobalContext();
   const [translatedContent, setTranslatedContent] = useState({
     home: 'Inicio',
     convertir: 'Convertir',
-    Facturas: "Facturas", 
+    Facturas: "Facturas",
     MisReparaciones: 'Solicitudes',
     EstadoReparaciones: "Mis Reparaciones",
     ajustes: 'Ajustes',
@@ -32,16 +69,16 @@ export default function MainApp() {
         const home = await translateText('Inicio', 'es', 'en');
         const ajustes = await translateText('Ajustes', 'es', 'en');
         const cerrarSesion = await translateText('Cerrar Sesión', 'es', 'en');
-        const MisVehiculos = await translateText('Mis Vehiculosn', 'es', 'en');
+        const MisVehiculos = await translateText('Mis Vehiculos', 'es', 'en');
         const MisReparaciones = await translateText('Solicitudes', 'es', 'en');
         const Facturas = await translateText("Facturas", "es", "en");
-        const EstadoReparaciones = await translateText('Mis reparaciones', 'es','en');
-        setTranslatedContent({ home, MisReparaciones,Facturas,EstadoReparaciones, ajustes, cerrarSesion , MisVehiculos});
+        const EstadoReparaciones = await translateText('Mis reparaciones', 'es', 'en');
+        setTranslatedContent({ home, MisReparaciones, Facturas, EstadoReparaciones, ajustes, cerrarSesion, MisVehiculos });
       } else {
         setTranslatedContent({
           home: 'Inicio',
           convertir: 'Convertir',
-          Facturas: "Facturas", 
+          Facturas: "Facturas",
           MisReparaciones: 'Solicitudes',
           EstadoReparaciones: "Mis Reparaciones",
           ajustes: 'Ajustes',
@@ -57,17 +94,18 @@ export default function MainApp() {
   return (
     <Drawer.Navigator
       initialRouteName="Home"
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         drawerStyle: {
-          backgroundColor: dark ? '#121212' : '#E5D9F2', // Fondo más oscuro si dark es true
+          backgroundColor: dark ? '#121212' : '#E5D9F2', // Fondo del Drawer
           width: 240,
         },
         drawerLabelStyle: {
-          fontSize: 16,
-          color: dark ? '#E5E5E5' : '#000', // Texto claro si dark es true
+          fontSize: 20,
+          color: dark ? '#DDE6ED' : '#27374D', // Color del texto
         },
-        drawerActiveTintColor: dark ? '#007bff' : '#000', // Color de texto activo dependiendo del tema
-        drawerInactiveTintColor: dark ? '#bbb' : '#555', // Color de texto inactivo dependiendo del tema
+        drawerActiveTintColor: dark ? '#007bff' : '#000', // Color de texto activo
+        drawerInactiveTintColor: dark ? '#bbb' : '#555', // Color de texto inactivo
       }}
     >
       <Drawer.Screen
@@ -75,18 +113,18 @@ export default function MainApp() {
         component={HomeScreen}
         options={{
           drawerLabel: translatedContent.home,
-          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
-          headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
+          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' },
+          headerTintColor: dark ? '#DDE6ED' : '#27374D',
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       />
       <Drawer.Screen
-        name= {translatedContent.MisVehiculos}
+        name={translatedContent.MisVehiculos}
         component={Vehiculos}
         options={{
           drawerLabel: translatedContent.MisVehiculos,
-          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
-          headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
+          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' },
+          headerTintColor: dark ? '#DDE6ED' : '#27374D',
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       />
@@ -95,8 +133,8 @@ export default function MainApp() {
         component={ReparacionesScreen}
         options={{
           drawerLabel: translatedContent.MisReparaciones,
-          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
-          headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
+          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' },
+          headerTintColor: dark ? '#DDE6ED' : '#27374D',
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       />
@@ -105,8 +143,8 @@ export default function MainApp() {
         component={EstadoReparacionesScreen}
         options={{
           drawerLabel: translatedContent.EstadoReparaciones,
-          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
-          headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
+          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' },
+          headerTintColor: dark ? '#DDE6ED' : '#27374D',
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       />
@@ -114,10 +152,10 @@ export default function MainApp() {
         name={translatedContent.Facturas}
         component={FACTURAS}
         options={{
-          drawerLabel: translatedContent.Facturas, 
-          headerStyle: { backgroundColor: dark ? "#121212" : "#E5D9F2" },
-          headerTintColor: dark ? "#E5E5E5" : "#000",
-          headerTitleStyle: { fontWeight: "bold" },
+          drawerLabel: translatedContent.Facturas,
+          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' },
+          headerTintColor: dark ? '#DDE6ED' : '#27374D',
+          headerTitleStyle: { fontWeight: 'bold' },
         }}
       />
       <Drawer.Screen
@@ -126,16 +164,8 @@ export default function MainApp() {
         options={{
           drawerLabel: translatedContent.ajustes,
           headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' },
-          headerTintColor: dark ? '#E5E5E5' : '#000',
+          headerTintColor: dark ? '#DDE6ED' : '#27374D',
           headerTitleStyle: { fontWeight: 'bold' },
-        }}
-      />
-      <Drawer.Screen
-        name={translatedContent.cerrarSesion}
-        component={WelcomeScreen}
-        options={{
-          drawerLabel: translatedContent.cerrarSesion,
-          headerShown: false,
         }}
       />
     </Drawer.Navigator>
