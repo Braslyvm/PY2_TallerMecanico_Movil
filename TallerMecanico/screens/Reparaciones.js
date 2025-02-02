@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import axios from "axios";
 import { Card, Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { useGlobalContext } from "./GlobalContext"; // Importar el contexto global
 
 const ReparacionesScreen = () => {
   const [reparaciones, setReparaciones] = useState([]);
+  const { cliente } = useGlobalContext(); // Obtener el cliente desde el contexto global
 
-  // Obtener reparaciones en estado "En espera"
+  // Obtener reparaciones en estado "En espera" para el cliente específico
   useEffect(() => {
     obtenerReparaciones();
-  }, []);
+  }, [cliente, reparaciones]); // Ejecutar cada vez que cambie el cliente
 
   const obtenerReparaciones = async () => {
     try {
-      const response = await axios.get("http://10.0.2.2:3001/api/reparaciones/estado/En%20espera");
+      const response = await axios.get(`http://10.0.2.2:3001/api/reparaciones/estado/En%20espera/cliente/${cliente}`);
       setReparaciones(response.data);
     } catch (error) {
       console.error("Error al obtener reparaciones:", error);
@@ -43,6 +45,7 @@ const ReparacionesScreen = () => {
         <Text style={styles.title}>ID: {item.id_reparacion}</Text>
         <Text>Vehículo: {item.id_vehiculo}</Text>
         <Text>Descripción: {item.descripcion}</Text>
+        <Text>Diagnóstico Técnico: {item.diagnostico_tecnico}</Text>
         <Text>Fecha: {item.fecha_reparacion}</Text>
         <Text>Estado: {item.estado}</Text>
       </Card.Content>
@@ -52,14 +55,18 @@ const ReparacionesScreen = () => {
           style={styles.buttonAprobar}
           onPress={() => cambiarEstadoReparacion(item.id_reparacion, "En curso")}
         >
-          <Icon name="check" size={15} color="#fff" /> Aprobar
+          <Text style={styles.buttonText}>
+            <Icon name="check" size={15} color="#fff" /> Aprobar
+          </Text>
         </Button>
         <Button
           mode="contained"
           style={styles.buttonRechazar}
           onPress={() => cambiarEstadoReparacion(item.id_reparacion, "Denegado")}
         >
-          <Icon name="times" size={15} color="#fff" /> Rechazar
+          <Text style={styles.buttonText}>
+            <Icon name="times" size={15} color="#fff" /> Rechazar
+          </Text>
         </Button>
       </Card.Actions>
     </Card>
@@ -106,6 +113,9 @@ const styles = StyleSheet.create({
   },
   buttonRechazar: {
     backgroundColor: "#F44336",
+  },
+  buttonText: {
+    color: "#fff", // Asegúrate de que el texto dentro de los botones sea visible
   },
 });
 

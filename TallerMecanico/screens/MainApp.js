@@ -9,6 +9,7 @@ import AjustesScreen from './Ajustes';
 import WelcomeScreen from './Welcome';
 import Vehiculos from './Vehiculos';
 import ReparacionesScreen from './Reparaciones';
+import EstadoReparacionesScreen from './EstadoReparaciones';
 
 const Drawer = createDrawerNavigator();
 
@@ -31,6 +32,7 @@ export default function MainApp() {
         const cerrarSesion = await translateText('Cerrar Sesión', 'es', 'en');
         const MisVehiculos = await translateText('Mis Vehiculosn', 'es', 'en');
         const MisReparaciones = await translateText('Mis Reparaciones', 'es', 'en');
+        const EstadoReparaciones = await translateText('Estado de Reparaciones', 'es',);
         setTranslatedContent({ home, convertir, tipoCambio, ajustes, cerrarSesion , MisVehiculos});
       } else {
         setTranslatedContent({
@@ -88,6 +90,16 @@ export default function MainApp() {
         component={ReparacionesScreen}
         options={{
           drawerLabel: translatedContent.MisReparaciones,
+          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
+          headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
+          headerTitleStyle: { fontWeight: 'bold' },
+        }}
+      />
+      <Drawer.Screen
+        name="Estado de reparaciones"
+        component={EstadoReparacionesScreen}
+        options={{
+          drawerLabel: translatedContent.EstadoReparaciones,
           headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
           headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
           headerTitleStyle: { fontWeight: 'bold' },
