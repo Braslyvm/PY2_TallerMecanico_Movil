@@ -88,13 +88,33 @@ export default function MainApp() {
         }}
       />
       <Drawer.Screen
-        name="Mis Reparaciones"
+        name="Solicitudes"
         component={ReparacionesScreen}
         options={{
           drawerLabel: translatedContent.MisReparaciones,
           headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
           headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
           headerTitleStyle: { fontWeight: 'bold' },
+        }}
+      />
+      <Drawer.Screen
+        name="Mis Reparaciones"
+        component={EstadoReparacionesScreen}
+        options={{
+          drawerLabel: translatedContent.EstadoReparaciones,
+          headerStyle: { backgroundColor: dark ? '#121212' : '#E5D9F2' }, // Encabezado más oscuro si dark es true
+          headerTintColor: dark ? '#E5E5E5' : '#000', // Tinte de encabezado claro si dark es true
+          headerTitleStyle: { fontWeight: 'bold' },
+        }}
+      />
+      <Drawer.Screen
+        name="Facturas pendientes"
+        component={FACTURAS}
+        options={{
+          drawerLabel: translatedContent.Facturas, 
+          headerStyle: { backgroundColor: dark ? "#121212" : "#E5D9F2" },
+          headerTintColor: dark ? "#E5E5E5" : "#000",
+          headerTitleStyle: { fontWeight: "bold" },
         }}
       />
       <Drawer.Screen

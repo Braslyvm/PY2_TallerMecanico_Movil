@@ -60,7 +60,7 @@ const EstadoReparacion = ({ estado }) => {
     // Animación de la barra de progreso
     Animated.timing(progress, {
       toValue: estados.indexOf(estado) + 1,
-      duration: 1000,
+      duration: 5,
       useNativeDriver: false,
     }).start();
   }, [estado]);
