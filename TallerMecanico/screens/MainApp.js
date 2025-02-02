@@ -19,7 +19,8 @@ export default function MainApp() {
     home: 'Inicio',
     convertir: 'Convertir',
     Facturas: "Facturas", 
-    tipoCambio: 'Tipo de Cambio',
+    MisReparaciones: 'Solicitudes',
+    EstadoReparaciones: "Mis Reparaciones",
     ajustes: 'Ajustes',
     cerrarSesion: 'Cerrar Sesión',
     MisVehiculos: 'Mis Vehiculos',
@@ -32,15 +33,17 @@ export default function MainApp() {
         const ajustes = await translateText('Ajustes', 'es', 'en');
         const cerrarSesion = await translateText('Cerrar Sesión', 'es', 'en');
         const MisVehiculos = await translateText('Mis Vehiculosn', 'es', 'en');
-        const MisReparaciones = await translateText('Mis Reparaciones', 'es', 'en');
+        const MisReparaciones = await translateText('Solicitudes', 'es', 'en');
         const Facturas = await translateText("Facturas", "es", "en");
-        const EstadoReparaciones = await translateText('Estado de Reparaciones', 'es',);
-        setTranslatedContent({ home, convertir, tipoCambio, ajustes, cerrarSesion , MisVehiculos});
+        const EstadoReparaciones = await translateText('Mis reparaciones', 'es','en');
+        setTranslatedContent({ home, MisReparaciones,Facturas,EstadoReparaciones, ajustes, cerrarSesion , MisVehiculos});
       } else {
         setTranslatedContent({
           home: 'Inicio',
           convertir: 'Convertir',
-          tipoCambio: 'Tipo de Cambio',
+          Facturas: "Facturas", 
+          MisReparaciones: 'Solicitudes',
+          EstadoReparaciones: "Mis Reparaciones",
           ajustes: 'Ajustes',
           cerrarSesion: 'Cerrar Sesión',
           MisVehiculos: 'Mis Vehiculos',
@@ -78,7 +81,7 @@ export default function MainApp() {
         }}
       />
       <Drawer.Screen
-        name="Mis Vehiculos"
+        name= {translatedContent.MisVehiculos}
         component={Vehiculos}
         options={{
           drawerLabel: translatedContent.MisVehiculos,
@@ -88,7 +91,7 @@ export default function MainApp() {
         }}
       />
       <Drawer.Screen
-        name="Solicitudes"
+        name={translatedContent.MisReparaciones}
         component={ReparacionesScreen}
         options={{
           drawerLabel: translatedContent.MisReparaciones,
@@ -98,7 +101,7 @@ export default function MainApp() {
         }}
       />
       <Drawer.Screen
-        name="Mis Reparaciones"
+        name={translatedContent.EstadoReparaciones}
         component={EstadoReparacionesScreen}
         options={{
           drawerLabel: translatedContent.EstadoReparaciones,
@@ -108,7 +111,7 @@ export default function MainApp() {
         }}
       />
       <Drawer.Screen
-        name="Facturas pendientes"
+        name={translatedContent.Facturas}
         component={FACTURAS}
         options={{
           drawerLabel: translatedContent.Facturas, 
