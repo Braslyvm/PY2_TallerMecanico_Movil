@@ -48,7 +48,6 @@ const Vehiculos = () => {
     };
 
     useEffect(() => {
-
     }, [Reparacion]);
     
 
@@ -141,10 +140,10 @@ const Vehiculos = () => {
           {reparaciones && (
             <View style={styles.reparacionesContainer}>
                 <View style={styles.header}>
+                    <Text style={styles.reparacionesTitle}>Reparaciones de {Placa}</Text>
                     <TouchableOpacity style={styles.backButton} onPress={OpenAutos}>
                         <Text style={styles.backButtonText}>Volver</Text>
                     </TouchableOpacity>
-                    <Text style={styles.reparacionesTitle}>Reparaciones de {Placa}</Text>
                 </View>
 
                 {Reparacion.length > 0 ? (
@@ -170,36 +169,62 @@ const Vehiculos = () => {
             </View>
           )}
             {detalles && (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={detalles}
-                onRequestClose={CloseDetalles}
-              >
-                <View style={styles.modalOverlay}>
-                  <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Detalles de Reparación</Text>
-                    <Text style={styles.modalText}>Detalles: {selectedDetalles?.detalles}</Text>
-                    <Text style={styles.modalText}>Mecánico: {selectedDetalles?.mecanico}</Text>
-                    <Text style={styles.modalText}>Fecha de Reparación: {selectedDetalles?.fecha_reparacion}</Text>
-                    <Text style={styles.modalText}>Placa: {selectedDetalles?.Placa}</Text>
-                    <Text style={styles.modalSubTitle}>Repuestos Utilizados</Text>
-                    {repuestos.length > 0 ? (
-                      repuestos.map((repuesto) => (
-                        <Text key={repuesto.id_reparacion} style={styles.modalText}>
-                          Repuesto: {repuesto.descripcion} - Cantidad: {repuesto.cantidad_utilizada}
-                        </Text>
-                      ))
-                    ) : (
-                      <Text style={styles.modalText}>No hay repuestos registrados.</Text>
-                    )}
-                    <TouchableOpacity onPress={CloseDetalles} style={styles.closeButton}>
-                      <Text style={styles.closeButtonText}>Cerrar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Modal>
-            )}
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={detalles}
+                    onRequestClose={CloseDetalles}
+                >
+                    <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Detalles de Reparación</Text>
+                        
+                        <View style={styles.detailSection}>
+                        <Text style={styles.detailLabel}>Detalles:</Text>
+                        <Text style={styles.detailText}>{selectedDetalles?.detalles}</Text>
+                        </View>
+
+                        <View style={styles.detailSection}>
+                        <Text style={styles.detailLabel}>Mecánico:</Text>
+                        <Text style={styles.detailText}>{selectedDetalles?.mecanico}</Text>
+                        </View>
+
+                        <View style={styles.detailSection}>
+                        <Text style={styles.detailLabel}>Fecha de Reparación:</Text>
+                        <Text style={styles.detailText}>{selectedDetalles?.fecha_reparacion}</Text>
+                        </View>
+
+                        <View style={styles.detailSection}>
+                        <Text style={styles.detailLabel}>Placa:</Text>
+                        <Text style={styles.detailText}>{selectedDetalles?.Placa}</Text>
+                        </View>
+
+                        <Text style={styles.modalSubTitle}>Repuestos Utilizados</Text>
+                        
+                        <ScrollView style={styles.repuestosContainer}>
+                        {repuestos.length > 0 ? (
+                            repuestos.map((repuesto) => (
+                            <View key={repuesto.id_reparacion} style={styles.repuestoItem}>
+                                <Text style={styles.repuestoText}>
+                                <Text style={styles.repuestoLabel}>Repuesto:</Text> {repuesto.descripcion}
+                                </Text>
+                                <Text style={styles.repuestoText}>
+                                <Text style={styles.repuestoLabel}>Cantidad:</Text> {repuesto.cantidad_utilizada}
+                                </Text>
+                            </View>
+                            ))
+                        ) : (
+                            <Text style={styles.noRepuestosText}>No hay repuestos registrados.</Text>
+                        )}
+                        </ScrollView>
+
+                        <TouchableOpacity onPress={CloseDetalles} style={styles.closeButton}>
+                        <Text style={styles.closeButtonText}>Cerrar</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </View>
+                </Modal>
+                )}
              <RegistroVehiculoModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -330,5 +355,86 @@ const styles = StyleSheet.create({
       color: '#fff',
       fontSize: 16,
       fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    maxHeight: '80%',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+  },
+  modalSubTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#333',
+  },
+  detailSection: {
+    marginBottom: 15,
+  },
+  detailLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#555',
+  },
+  detailText: {
+    fontSize: 16,
+    color: '#333',
+    marginTop: 5,
+  },
+  repuestosContainer: {
+    maxHeight: 150,
+    marginBottom: 20,
+  },
+  repuestoItem: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  repuestoText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  repuestoLabel: {
+    fontWeight: 'bold',
+  },
+  noRepuestosText: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#777',
+  },
+  closeButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignSelf: 'center',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
