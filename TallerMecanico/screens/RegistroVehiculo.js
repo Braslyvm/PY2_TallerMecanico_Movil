@@ -7,8 +7,11 @@ import {
   Alert,
   TouchableOpacity,
   Modal,
+  Image,
+  ScrollView,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 
 export default function RegistroVehiculoModal({
@@ -23,6 +26,7 @@ export default function RegistroVehiculoModal({
   const [anio, setAnio] = useState("");
   const [placa, setPlaca] = useState("");
   const [vehiculos, setvehiculos] = useState("");
+  const [currentImage, setCurrentImage] = useState(null);
 
   useEffect(() => {
     const getMarcas = () => {
@@ -37,13 +41,55 @@ export default function RegistroVehiculoModal({
     getMarcas();
   }, []);
 
+  const handlePickImage = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permissionResult.granted) {
+        Alert.alert(
+          "Permiso necesario",
+          "Se necesita acceso a la galería para seleccionar una imagen."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+        aspect: [1, 1],
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const image = result.assets[0];
+        setCurrentImage(image.uri);
+      }
+    } catch (error) {
+      console.log(
+        "Error",
+        "Ocurrió un error al intentar acceder a la galería."
+      );
+    }
+  };
+
   const handleRegistro = () => {
-    if (!selectedMarca || !modelo || !anio || !placa) {
-      Alert.alert("Error", "Todos los campos son obligatorios");
+    if (!selectedMarca || !modelo || !anio || !placa || !currentImage) {
+      Alert.alert(
+        "Error",
+        "Todos los campos son obligatorios, incluyendo la foto."
+      );
       return;
     }
 
-    const vehiculo = { id_marca: selectedMarca, modelo, anio, cedula, placa };
+    const vehiculo = {
+      id_marca: selectedMarca,
+      modelo,
+      anio,
+      cedula,
+      placa,
+      foto: currentImage,
+    };
 
     axios
       .get("http://10.0.2.2:3001/api/vehiculos")
@@ -55,8 +101,24 @@ export default function RegistroVehiculoModal({
         if (vehiculoExistente) {
           Alert.alert("Error", "Vehículo ya registrado.");
         } else {
+          const formData = new FormData();
+          formData.append("id_marca", selectedMarca);
+          formData.append("modelo", modelo);
+          formData.append("anio", anio);
+          formData.append("cedula", cedula);
+          formData.append("placa", placa);
+          formData.append("foto", {
+            uri: currentImage,
+            name: "photo.jpg",
+            type: "image/jpeg",
+          });
+
           axios
-            .post("http://10.0.2.2:3001/api/vehiculos", vehiculo)
+            .post("http://10.0.2.2:3001/api/vehiculos", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            })
             .then((response) => {
               setvehiculos([...vehiculos, response.data]);
               Alert.alert(
@@ -98,89 +160,116 @@ export default function RegistroVehiculoModal({
             { backgroundColor: dark ? "#121212" : "#FFFFFF" },
           ]}
         >
-          <Text style={[styles.title, { color: dark ? "#FFFFFF" : "#000000" }]}>
-            Registro de Vehículo
-          </Text>
-
-          <View
-            style={[styles.input, { backgroundColor: dark ? "#333333" : "#F0F0F0" }]}
-          >
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text
-              style={[styles.cedulaText, { color: dark ? "#FFFFFF" : "#000000" }]}
+              style={[styles.title, { color: dark ? "#FFFFFF" : "#000000" }]}
             >
-              Cliente: {cedula}
+              Registro de Vehículo
             </Text>
-          </View>
 
-          <View
-            style={[styles.input, { backgroundColor: dark ? "#333333" : "#F0F0F0" }]}
-          >
-            <Picker
-              selectedValue={selectedMarca}
-              onValueChange={(itemValue) => setSelectedMarca(itemValue)}
-              style={{ color: dark ? "#FFFFFF" : "#000000" }}
+            <View
+              style={[
+                styles.inputContainer,
+                { backgroundColor: dark ? "#333333" : "#F0F0F0" },
+              ]}
             >
-              <Picker.Item label="Seleccione una marca" value="" />
-              {marcas.map((marca) => (
-                <Picker.Item
-                  key={marca.id_marca}
-                  label={marca.nombre}
-                  value={marca.id_marca}
-                  color={dark ? "#FFFFFF" : "#000000"}
-                />
-              ))}
-            </Picker>
-          </View>
+              <Text
+                style={[
+                  styles.cedulaText,
+                  { color: dark ? "#FFFFFF" : "#000000" },
+                ]}
+              >
+                Cliente: {cedula}
+              </Text>
+            </View>
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: dark ? "#333333" : "#F0F0F0",
-                color: dark ? "#FFFFFF" : "#000000",
-              },
-            ]}
-            placeholder="Modelo"
-            placeholderTextColor={dark ? "#AAAAAA" : "#888888"}
-            value={modelo}
-            onChangeText={setModelo}
-          />
+            <View
+              style={[
+                styles.inputContainer,
+                { backgroundColor: dark ? "#333333" : "#F0F0F0" },
+              ]}
+            >
+              <Picker
+                selectedValue={selectedMarca}
+                onValueChange={(itemValue) => setSelectedMarca(itemValue)}
+                style={{ color: dark ? "#FFFFFF" : "#000000" }}
+              >
+                <Picker.Item label="Seleccione una marca" value="" />
+                {marcas.map((marca) => (
+                  <Picker.Item
+                    key={marca.id_marca}
+                    label={marca.nombre}
+                    value={marca.id_marca}
+                    color={dark ? "#FFFFFF" : "#000000"}
+                  />
+                ))}
+              </Picker>
+            </View>
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: dark ? "#333333" : "#F0F0F0",
-                color: dark ? "#FFFFFF" : "#000000",
-              },
-            ]}
-            placeholder="Año"
-            placeholderTextColor={dark ? "#AAAAAA" : "#888888"}
-            value={anio}
-            onChangeText={setAnio}
-            keyboardType="numeric"
-          />
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: dark ? "#333333" : "#F0F0F0",
+                  color: dark ? "#FFFFFF" : "#000000",
+                },
+              ]}
+              placeholder="Modelo"
+              placeholderTextColor={dark ? "#AAAAAA" : "#888888"}
+              value={modelo}
+              onChangeText={setModelo}
+            />
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: dark ? "#333333" : "#F0F0F0",
-                color: dark ? "#FFFFFF" : "#000000",
-              },
-            ]}
-            placeholder="Placa del Vehículo"
-            placeholderTextColor={dark ? "#AAAAAA" : "#888888"}
-            value={placa}
-            onChangeText={setPlaca}
-          />
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: dark ? "#333333" : "#F0F0F0",
+                  color: dark ? "#FFFFFF" : "#000000",
+                },
+              ]}
+              placeholder="Año"
+              placeholderTextColor={dark ? "#AAAAAA" : "#888888"}
+              value={anio}
+              onChangeText={setAnio}
+              keyboardType="numeric"
+            />
 
-          <TouchableOpacity style={styles.button} onPress={handleRegistro}>
-            <Text style={styles.buttonText}>Registrar Vehículo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Cerrar</Text>
-          </TouchableOpacity>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: dark ? "#333333" : "#F0F0F0",
+                  color: dark ? "#FFFFFF" : "#000000",
+                },
+              ]}
+              placeholder="Placa del Vehículo"
+              placeholderTextColor={dark ? "#AAAAAA" : "#888888"}
+              value={placa}
+              onChangeText={setPlaca}
+            />
+
+            <TouchableOpacity
+              style={styles.imageButton}
+              onPress={handlePickImage}
+            >
+              <Text style={styles.imageButtonText}>Seleccionar Foto</Text>
+            </TouchableOpacity>
+
+            {currentImage && (
+              <Image source={{ uri: currentImage }} style={styles.image} />
+            )}
+
+            <TouchableOpacity
+              style={styles.registerButton}
+              onPress={handleRegistro}
+            >
+              <Text style={styles.registerButtonText}>Registrar Vehículo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -195,6 +284,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
+    maxHeight: "80%",
     borderRadius: 10,
     padding: 20,
     shadowColor: "#000",
@@ -206,12 +296,24 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+  },
   title: {
     fontSize: 22,
     fontWeight: "600",
     marginBottom: 20,
     textAlign: "center",
-    color: "#333",
+  },
+  inputContainer: {
+    height: 50,
+    borderColor: "#E0E0E0",
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingHorizontal: 12,
+    justifyContent: "center",
   },
   input: {
     height: 50,
@@ -221,20 +323,37 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingHorizontal: 12,
     justifyContent: "center",
-    backgroundColor: "#F0F0F0",
   },
   cedulaText: {
     fontSize: 16,
-    color: "#333",
   },
-  button: {
+  imageButton: {
+    backgroundColor: "#4CAF50",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  imageButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginBottom: 15,
+    alignSelf: "center",
+  },
+  registerButton: {
     backgroundColor: "#007AFF",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 10,
   },
-  buttonText: {
+  registerButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
