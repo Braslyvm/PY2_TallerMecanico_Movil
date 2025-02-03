@@ -13,6 +13,7 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
+import CryptoJS from "crypto-js";
 
 export default function RegistroVehiculoModal({
   visible,
@@ -27,6 +28,7 @@ export default function RegistroVehiculoModal({
   const [placa, setPlaca] = useState("");
   const [vehiculos, setvehiculos] = useState("");
   const [currentImage, setCurrentImage] = useState(null);
+  
 
   useEffect(() => {
     const getMarcas = () => {
@@ -43,14 +45,9 @@ export default function RegistroVehiculoModal({
 
   const handlePickImage = async () => {
     try {
-      const permissionResult =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permissionResult.granted) {
-        Alert.alert(
-          "Permiso necesario",
-          "Se necesita acceso a la galería para seleccionar una imagen."
-        );
+        Alert.alert("Permiso necesario", "Se necesita acceso a la galería para seleccionar una imagen.");
         return;
       }
 
@@ -59,17 +56,21 @@ export default function RegistroVehiculoModal({
         allowsEditing: true,
         quality: 1,
         aspect: [1, 1],
+        base64: true,
       });
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const image = result.assets[0];
-        setCurrentImage(image.uri);
+      if (!result.canceled && result.assets.length > 0) {
+        const imageBase64 = result.assets[0].base64;
+        // Asegúrate de que la imagen no esté vacía
+        if (imageBase64 && imageBase64.trim() !== "") {
+          const encryptedImage = CryptoJS.AES.encrypt(imageBase64, "clave_secreta").toString();
+          setCurrentImage(encryptedImage);
+        } else {
+          Alert.alert("Error", "La imagen seleccionada no es válida.");
+        }
+      } else {
       }
     } catch (error) {
-      console.log(
-        "Error",
-        "Ocurrió un error al intentar acceder a la galería."
-      );
     }
   };
 
@@ -91,54 +92,28 @@ export default function RegistroVehiculoModal({
       foto: currentImage,
     };
 
-    axios
-      .get("http://10.0.2.2:3001/api/vehiculos")
-      .then((response) => {
-        const vehiculosRegistrados = response.data;
-        const vehiculoExistente = vehiculosRegistrados.find(
-          (v) => v.placa === placa && v.cedula === cedula
-        );
+    axios.get("http://10.0.2.2:3001/api/vehiculos")
+      .then(response => {
+        const vehiculoExistente = response.data.find(v => v.placa === placa && v.cedula === cedula);
         if (vehiculoExistente) {
           Alert.alert("Error", "Vehículo ya registrado.");
         } else {
-          const formData = new FormData();
-          formData.append("id_marca", selectedMarca);
-          formData.append("modelo", modelo);
-          formData.append("anio", anio);
-          formData.append("cedula", cedula);
-          formData.append("placa", placa);
-          formData.append("foto", {
-            uri: currentImage,
-            name: "photo.jpg",
-            type: "image/jpeg",
+          axios.post("http://10.0.2.2:3001/api/vehiculos", vehiculo)
+          .then(response => {
+            setvehiculos([...vehiculos, response.data]);
+            Alert.alert("Registro exitoso", "El vehículo ha sido registrado correctamente.");
+            onClose();
+          })
+          .catch(error => {
+            
+            Alert.alert("Error", "No se pudo registrar el vehículo.");
           });
-
-          axios
-            .post("http://10.0.2.2:3001/api/vehiculos", formData, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            })
-            .then((response) => {
-              setvehiculos([...vehiculos, response.data]);
-              Alert.alert(
-                "Registro exitoso",
-                "El vehículo ha sido registrado correctamente."
-              );
-              onClose();
-            })
-            .catch((error) => {
-              console.error("Error al registrar el vehículo:", error);
-              Alert.alert("Error", "No se pudo registrar el vehículo.");
-            });
         }
       })
-      .catch((error) => {
-        console.error("Error al obtener los vehículos:", error);
+      .catch(error => {
         Alert.alert("Error", "No se pudo verificar los vehículos registrados.");
       });
   };
-
   return (
     <Modal
       visible={visible}
@@ -249,16 +224,9 @@ export default function RegistroVehiculoModal({
               onChangeText={setPlaca}
             />
 
-            <TouchableOpacity
-              style={styles.imageButton}
-              onPress={handlePickImage}
-            >
+            <TouchableOpacity style={styles.imageButton} onPress={handlePickImage}>
               <Text style={styles.imageButtonText}>Seleccionar Foto</Text>
             </TouchableOpacity>
-
-            {currentImage && (
-              <Image source={{ uri: currentImage }} style={styles.image} />
-            )}
 
             <TouchableOpacity
               style={styles.registerButton}
