@@ -11,7 +11,6 @@ export default function WelcomeScreen({ navigation }) {
   const { translate, dark ,cliente, setCliente} = useGlobalContext();
 
   useEffect(() => {
-    setCliente("");
     const translateContent = async () => {
       if (translate) {
         const bienvenido = await translateText('¡Bienvenido!', 'es', 'en');
