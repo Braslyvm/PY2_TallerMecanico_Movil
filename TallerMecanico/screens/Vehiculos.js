@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
 import { useGlobalContext } from './GlobalContext';
 import axios from "axios";
 import { Card } from 'react-native-paper';
 import RegistroVehiculoModal from "./RegistroVehiculo";
 import translateText from './translate';
+import CryptoJS from 'crypto-js';
 
 const Vehiculos = () => {
     const { translate, dark, cliente, setCliente } = useGlobalContext();
@@ -12,7 +13,7 @@ const Vehiculos = () => {
     const [reparaciones, setreparaciones] = useState(false);
     const [detalles, setdetalles] = useState(false);
     const [modalVisible, setModalVisible] = useState(false); 
-    const [vehiculos, setvehiculos] = useState([]);
+    const [vehiculos, setVehiculos] = useState([]);
     const [Reparacion, setReparacion] = useState([]);
     const [ID, setID] = useState("");
     const [Placa, setplaca] = useState("");
@@ -139,23 +140,34 @@ const Vehiculos = () => {
         axios
             .get(`http://10.0.2.2:3001/api/vehiculos/completa/Cliente/${cedula}`)
             .then((response) => {
-                setvehiculos(response.data);
-                if (response.data.length === 0) {
-                    AlertAviso('No hay Vehiculos registrados');
-                }
+                const vehiculosData = response.data.map(vehiculo => {
+                    if (vehiculo.foto) {
+                        // Desencriptar la foto usando la clave "clave_secreta"
+                        const decryptedFoto = CryptoJS.AES.decrypt(vehiculo.foto, 'clave_secreta').toString(CryptoJS.enc.Utf8);
+                        vehiculo.foto = decryptedFoto; // Asignar la imagen desencriptada
+                    }
+                    return vehiculo;
+                });
+                setVehiculos(vehiculosData);
             })
             .catch((error) => {
-                AlertAviso("No hay vehiculos");
+                
+                Alert.alert("Error", "No hay vehículos");
             });
     };
 
     useEffect(() => {
     }, [Reparacion]);
+
+    useEffect(() => {
+        getVehiculos();
+    }, [vehiculos]);
     
 
     // Obtener reparaciones
     const getReparaciones = (id) => {
-  axios
+        
+    axios
     .get(`http://10.0.2.2:3001/api/reparaciones2/${id}`)
     .then((response) => {
       
@@ -168,9 +180,9 @@ const Vehiculos = () => {
 };
 
 
-    useEffect(() => {
-        getVehiculos();
-    }, [vehiculos]);
+        useEffect(() => {
+            getVehiculos();
+        }, [cliente]);
 
     // Lógica de mostrar y ocultar
     const OpenAutos = () => {
@@ -209,35 +221,41 @@ const Vehiculos = () => {
     return (
         <View style={[styles.container, { backgroundColor: dark ? '#333' : '#fff' }]}>
             {autos && (
-                <>
-                    <View style={styles.header}>
-                        <Text style={styles.title}>{translatedContent.misVehiculos}</Text>
-                        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-                            <Text style={styles.addButtonText}>{translatedContent.agregarVehiculo}</Text>
-                        </TouchableOpacity>
-                    </View>
+            <>
+                <View style={styles.header}>
+                    <Text style={styles.title}>{translatedContent.misVehiculos}</Text>
+                    <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+                        <Text style={styles.addButtonText}>{translatedContent.agregarVehiculo}</Text>
+                    </TouchableOpacity>
+                </View>
 
-                    <ScrollView style={styles.listContainer}>
-                        <View>
-                            {vehiculos.length > 0 ? (
-                                vehiculos.map((vehiculo) => (
-                                    <TouchableOpacity key={vehiculo.id_vehiculo} onPress={() => Intermedio(vehiculo.id_vehiculo, vehiculo.placa)}>
-                                        <Card style={styles.card}>
-                                            <Card.Content>
+                <ScrollView style={styles.listContainer}>
+                    <View>
+                        {vehiculos.length > 0 ? (
+                            vehiculos.map((vehiculo) => (
+                                <TouchableOpacity key={vehiculo.id_vehiculo} onPress={() => Intermedio(vehiculo.id_vehiculo, vehiculo.placa)}>
+                                    <Card style={styles.card}>
+                                        <View style={styles.cardContent}>
+                                            <Image
+                                                source={{ uri: `data:image/jpeg;base64,${vehiculo.foto}` }}
+                                                style={styles.vehiculoImage}
+                                            />
+                                            <View style={styles.textContainer}>
                                                 <Text style={styles.vehiculoText}>{translatedContent.Placa}: {vehiculo.placa}</Text>
                                                 <Text style={styles.vehiculoText}>{translatedContent.Marca}: {vehiculo.marca}</Text>
                                                 <Text style={styles.vehiculoText}>{translatedContent.Modelo}: {vehiculo.modelo}</Text>
                                                 <Text style={styles.vehiculoText}>{translatedContent.Año}: {vehiculo.anio}</Text>
-                                            </Card.Content>
-                                        </Card>
-                                    </TouchableOpacity>
-                                ))
-                            ) : (
-                                <Text style={styles.noVehiculosText}>{translatedContent.noVehiculos}</Text>
-                            )}
-                        </View>
-                    </ScrollView>
-                </>
+                                            </View>
+                                        </View>
+                                    </Card>
+                                </TouchableOpacity>
+                            ))
+                        ) : (
+                            <Text style={styles.noVehiculosText}>{translatedContent.noVehiculos}</Text>
+                        )}
+                    </View>
+                </ScrollView>
+            </>
             )}
             {reparaciones && (
                 <View style={styles.reparacionesContainer}>
@@ -339,204 +357,184 @@ const Vehiculos = () => {
 };
 
 export default Vehiculos;
-
 const styles = StyleSheet.create({
-  container: {
-      flex: 1,
-      padding: 16,
-  },
-  header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 16,
-  },
-  title: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: '#000',
-  },
-  addButton: {
-      backgroundColor: '#007BFF',
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 8,
-  },
-  addButtonText: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: 'bold',
-  },
-  listContainer: {
-      flex: 1,
-  },
-  card: {
-      marginVertical: 8,
-      padding: 16,
-      borderRadius: 8,
-      elevation: 3,
-      backgroundColor: '#fff',
-  },
-  vehiculoText: {
-      fontSize: 16,
-      marginBottom: 4,
-      color: '#000',
-  },
-  noVehiculosText: {
-      fontSize: 16,
-      textAlign: 'center',
-      marginTop: 20,
-      color: '#000',
-  },
-  reparacionesContainer: {
-      flex: 1,
-      padding: 16,
-  },
-  reparacionesTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginLeft: 16, 
-  },
-  reparacionText: {
-      fontSize: 16,
-      marginBottom: 4,
-  },
-  noReparacionesText: {
-      fontSize: 16,
-      textAlign: 'center',
-      marginTop: 20,
-  },
-  modalOverlay: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-      width: '80%',
-      padding: 20,
-      backgroundColor: '#fff',
-      borderRadius: 8,
-      alignItems: 'center',
-  },
-  modalTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginBottom: 10,
-  },
-  modalSubTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginTop: 10,
-      marginBottom: 5,
-  },
-  modalText: {
-      fontSize: 16,
-      marginBottom: 8,
-      textAlign: 'center',
-  },
-  closeButton: {
-      marginTop: 20,
-      backgroundColor: '#007BFF',
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 8,
-  },
-  closeButtonText: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: 'bold',
-  },
-  backButton: {
-      backgroundColor: '#6c757d', 
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 8,
-  },
-  backButtonText: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: 'bold',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '90%',
-    maxHeight: '80%',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#333',
-  },
-  modalSubTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-    color: '#333',
-  },
-  detailSection: {
-    marginBottom: 15,
-  },
-  detailLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#555',
-  },
-  detailText: {
-    fontSize: 16,
-    color: '#333',
-    marginTop: 5,
-  },
-  repuestosContainer: {
-    maxHeight: 150,
-    marginBottom: 20,
-  },
-  repuestoItem: {
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
-  },
-  repuestoText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  repuestoLabel: {
-    fontWeight: 'bold',
-  },
-  noRepuestosText: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#777',
-  },
-  closeButton: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignSelf: 'center',
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#f5f5f5', // Fondo claro para un estilo minimalista
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#333', // Color oscuro para el título
+    },
+    addButton: {
+        backgroundColor: '#007BFF', // Azul moderno
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        elevation: 2, // Sombra para un efecto elevado
+    },
+    addButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    listContainer: {
+        flex: 1,
+    },
+    card: {
+        marginVertical: 8,
+        padding: 16,
+        borderRadius: 12, // Bordes más redondeados
+        elevation: 3, // Sombra para un efecto elevado
+        backgroundColor: '#fff', // Fondo blanco para las tarjetas
+        shadowColor: '#000', // Sombra para un efecto moderno
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    cardContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    vehiculoImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 8, // Bordes redondeados para la imagen
+        marginRight: 16,
+    },
+    textContainer: {
+        flex: 1,
+    },
+    vehiculoText: {
+        fontSize: 16,
+        marginBottom: 6, // Espaciado entre líneas
+        color: '#555', // Color gris oscuro para el texto
+    },
+    noVehiculosText: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginTop: 20,
+        color: '#777', // Color gris para el texto de "no hay vehículos"
+    },
+    reparacionesContainer: {
+        flex: 1,
+        padding: 16,
+    },
+    reparacionesTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        color: '#333', // Color oscuro para el título
+    },
+    reparacionText: {
+        fontSize: 16,
+        marginBottom: 6,
+        color: '#555', // Color gris oscuro para el texto
+    },
+    noReparacionesText: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginTop: 20,
+        color: '#777', // Color gris para el texto de "no hay reparaciones"
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)', // Fondo semitransparente
+    },
+    modalContent: {
+        width: '90%',
+        maxHeight: '80%',
+        padding: 20,
+        backgroundColor: '#fff', // Fondo blanco para el modal
+        borderRadius: 12, // Bordes redondeados
+        elevation: 5, // Sombra para un efecto elevado
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+        color: '#333', // Color oscuro para el título del modal
+    },
+    modalSubTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginBottom: 10,
+        color: '#333', // Color oscuro para el subtítulo
+    },
+    detailSection: {
+        marginBottom: 15,
+    },
+    detailLabel: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#555', // Color gris oscuro para las etiquetas
+    },
+    detailText: {
+        fontSize: 16,
+        color: '#333', // Color oscuro para el texto
+        marginTop: 5,
+    },
+    repuestosContainer: {
+        maxHeight: 150,
+        marginBottom: 20,
+    },
+    repuestoItem: {
+        marginBottom: 10,
+        padding: 10,
+        backgroundColor: '#f9f9f9', // Fondo gris claro para los repuestos
+        borderRadius: 8, // Bordes redondeados
+        borderWidth: 1,
+        borderColor: '#eee', // Borde suave
+    },
+    repuestoText: {
+        fontSize: 14,
+        color: '#333', // Color oscuro para el texto
+    },
+    repuestoLabel: {
+        fontWeight: 'bold',
+    },
+    noRepuestosText: {
+        fontSize: 14,
+        textAlign: 'center',
+        color: '#777', // Color gris para el texto de "no hay repuestos"
+    },
+    closeButton: {
+        backgroundColor: '#007BFF', // Azul moderno
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignSelf: 'center',
+    },
+    closeButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    backButton: {
+        backgroundColor: '#6c757d', // Gris moderno
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+    },
+    backButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 });
